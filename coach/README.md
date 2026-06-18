@@ -23,6 +23,7 @@ Claude/ChatGPT.
 | `search.py` | Search the index from the CLI. |
 | `whoop.py` | Parse your WHOOP CSV export → a summary + flags. |
 | `make_coach_prompt.py` | Combine WHOOP summary + relevant transcript excerpts → `coach_prompt.md`. |
+| `chat.py` | Local chat app — talk to a RAG coach (Claude API) with the transcripts + your WHOOP data. |
 | `coach_system_prompt.md` | The coach's persona / rules (edit to taste). |
 | `config.py` | Channels, languages, paths, rate-limit knobs. |
 
@@ -96,6 +97,23 @@ Claude or ChatGPT. The model now coaches you using the two channels' protocols
 grounded in your actual WHOOP numbers, with citations + timestamped links.
 
 Re-run Step 3 + Step 4 whenever you have a fresh WHOOP export (e.g. weekly).
+
+## Alternative — chat with the coach directly (RAG app)
+
+Instead of pasting a prompt, run a local chat where the coach retrieves relevant
+transcript excerpts on every message and answers grounded in your WHOOP data,
+with citations. Needs an Anthropic API key.
+
+```bash
+pip install -r requirements.txt          # includes the anthropic SDK
+export ANTHROPIC_API_KEY=sk-ant-...       # from console.anthropic.com
+python chat.py                            # after build_index.py (+ whoop.py)
+```
+
+Type questions like *"my recovery's been low all week, what should I change?"*.
+Commands inside the chat: `/sources` (show citations for the last answer),
+`/reset`, `/quit`. Uses `claude-opus-4-8` by default (`--model claude-sonnet-4-6`
+for a cheaper/faster option; `--k 8` to retrieve more excerpts per turn).
 
 ## Refreshing later
 

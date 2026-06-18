@@ -1,3 +1,4 @@
 youtube-transcript-api>=1.2,<2
 yt-dlp>=2024.0
 rank-bm25>=0.2.2
+anthropic>=0.40            # only needed for chat.py (the RAG coach app)
