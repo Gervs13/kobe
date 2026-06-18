@@ -2,7 +2,7 @@
  * Veille médias automatique — Make Your Move (MYM) / Living Sisu / Showdown
  * =========================================================================
  * Construit un rapport multi-onglets dans le Google Sheet et le met a jour
- * CHAQUE VENDREDI. Ne garde QUE les articles publies a partir de juin 2026.
+ * CHAQUE VENDREDI. Ne garde QUE les articles publies en 2026.
  *
  *   Onglet « Rapport complet »  -> tout (En ligne + Reseaux sociaux)
  *   Onglet « En ligne »         -> articles presse/web (Google News, gratuit)
@@ -12,7 +12,7 @@
  * INSTALLATION (une fois) :
  *   1. Google Sheet > Extensions > Apps Script. Coller ce fichier. Sauvegarder.
  *   2. Lancer « construireRapport »      -> cree les onglets + articles de base.
- *   3. (Social) Ajouter les jetons MYM (voir CONFIG plus bas) + « majReseauxSociaux ».
+ *   3. (Social) Ajouter les jetons MYM (voir GUIDE) + « majReseauxSociaux ».
  *   4. Lancer « installerDeclencheurHebdo » -> auto chaque vendredi 8h.
  */
 
@@ -30,8 +30,8 @@ var REQUETES = [
 
 var GNEWS_PARAMS = 'hl=fr-CA&gl=CA&ceid=CA:fr';
 
-// On ne garde QUE les articles publies a partir de cette date (veille courante).
-var DATE_MIN = '2026-06-01';
+// On ne garde QUE les articles publies a partir de cette date (annee 2026).
+var DATE_MIN = '2026-01-01';
 
 // Niveau de portee presse estime selon le media (qualitatif, pas des impressions exactes)
 var PORTEE_MEDIA = {
@@ -42,6 +42,7 @@ var PORTEE_MEDIA = {
   'qub.ca': 'Elevee', 'thehockeynews.com': 'Elevee', 'chl.ca': 'Elevee',
   'hockeycanada.ca': 'Elevee',
   'bpmsports.ca': 'Moyenne', 'marqueur.com': 'Moyenne',
+  'montrealhockeyfanatics.com': 'Moyenne', 'thesickpodcast.com': 'Moyenne',
   'hockeylemagazine.com': 'Moyenne', 'danslescoulisses.com': 'Moyenne',
   'lapochebleue.com': 'Moyenne', 'habsolumentfan.com': 'Moyenne',
   'dose.ca': 'Moyenne', 'yardbarker.com': 'Moyenne', 'thehockeywriters.com': 'Moyenne',
@@ -58,7 +59,7 @@ var PORTEE_MEDIA = {
 //  (Voir apps-script/GUIDE-jetons-reseaux-sociaux.md)
 
 // ============================================================================
-//  ONGLETS / EN-TETES
+//  ONGLETS / EN-TETES   (colonne Marque retiree)
 // ============================================================================
 
 var T_COMPLET = 'Rapport complet';
@@ -66,8 +67,8 @@ var T_ENLIGNE = 'En ligne';
 var T_SOCIAL  = 'Reseaux sociaux';
 var T_LEGENDE = 'Legende';
 
-var H_COMPLET = ['Canal','Date reperage','Marque / Compte','Plateforme / Media','Titre / Description','Lien','Date publication','Impressions / Portee','Notes'];
-var H_ENLIGNE = ['Date reperage','Marque / Mot-cle','Titre de l\'article','Media / Source','URL','Date publication','Type de media','Portee presse (estimee)','Notes'];
+var H_COMPLET = ['Canal','Date reperage','Plateforme / Media','Titre / Description','Lien','Date publication','Impressions / Portee','Notes'];
+var H_ENLIGNE = ['Date reperage','Titre de l\'article','Media / Source','URL','Date publication','Type de media','Portee presse (estimee)','Notes'];
 var H_SOCIAL  = ['Date reperage','Compte MYM','Plateforme','Date publication','Description du post','Lien','Impressions','Portee (reach)','J\'aime','Commentaires','Partages','Notes'];
 
 // ============================================================================
@@ -92,7 +93,7 @@ function construireRapport() {
   construireLegende_(ss);
 
   if (enl.getLastRow() < 2) {
-    PRESS_SEED.forEach(function (r) { ecrirePresse_(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]); });
+    PRESS_SEED.forEach(function (r) { ecrirePresse_(r[0], r[1], r[2], r[3], r[4], r[5], r[6]); });
   }
   var soc = ss.getSheetByName(T_SOCIAL);
   if (soc.getLastRow() < 2 && !jetonsSociauxPresents_()) {
@@ -103,7 +104,7 @@ function construireRapport() {
 }
 
 // ============================================================================
-//  PRESSE / WEB  (Google News, juin 2026+)
+//  PRESSE / WEB  (Google News, 2026)
 // ============================================================================
 
 function majPresse() {
@@ -111,11 +112,11 @@ function majPresse() {
   var auj = dateStr_(new Date());
   REQUETES.forEach(function (q) {
     chercherGoogleNews_(q).forEach(function (a) {
-      if (a.datePub && a.datePub < DATE_MIN) return; // ignore tout ce qui est avant juin 2026
+      if (a.datePub && a.datePub < DATE_MIN) return; // ignore tout ce qui est avant 2026
       var cle = normUrl_(a.url);
       if (cle && !urls[cle]) {
         urls[cle] = true;
-        ecrirePresse_(auj, q.replace(/"/g, ''), a.titre, a.source, a.url, a.datePub, 'Article web', porteePour_(a.url, a.source));
+        ecrirePresse_(auj, a.titre, a.source, a.url, a.datePub, 'Article web', porteePour_(a.url, a.source));
       }
     });
     Utilities.sleep(1200);
@@ -145,9 +146,9 @@ function porteePour_(url, source) {
   return 'A determiner';
 }
 
-function ecrirePresse_(dateRep, marque, titre, media, url, datePub, type, portee) {
-  ligne_(T_ENLIGNE, [dateRep, marque, titre, media, url, datePub, type, portee, '']);
-  ligne_(T_COMPLET, ['En ligne', dateRep, marque, media, titre, url, datePub, portee, '']);
+function ecrirePresse_(dateRep, titre, media, url, datePub, type, portee) {
+  ligne_(T_ENLIGNE, [dateRep, titre, media, url, datePub, type, portee, '']);
+  ligne_(T_COMPLET, ['En ligne', dateRep, media, titre, url, datePub, portee, '']);
 }
 
 // ============================================================================
@@ -165,7 +166,7 @@ function majReseauxSociaux() {
         if (!liens[cle]) {
           liens[cle] = true;
           ligne_(T_SOCIAL, [auj, p.compte, p.plateforme, p.datePub, p.desc, p.lien, p.impressions, p.reach, p.likes, p.comments, p.shares, p.notes || '']);
-          ligne_(T_COMPLET, ['Reseau social', auj, p.compte, p.plateforme, p.desc, p.lien, p.datePub, p.impressions, p.notes || '']);
+          ligne_(T_COMPLET, ['Reseau social', auj, p.plateforme, p.desc, p.lien, p.datePub, p.impressions, p.notes || '']);
         }
       });
     } catch (e) { Logger.log('Social: ' + e); }
@@ -254,7 +255,7 @@ function construireLegende_(ss) {
     ['Portee presse (estimee)', 'Niveau qualitatif selon la taille du media (Tres elevee/Elevee/Moyenne/Faible). PAS un nombre d\'impressions exact.'],
     ['Impressions (reseaux sociaux)', 'Chiffres EXACTS via les API officielles (Meta/IG/FB, LinkedIn, X) une fois les jetons MYM ajoutes.'],
     ['Comptes suivis (social)', 'Make Your Move (MYM) uniquement, + collaborations (ex. MYM x RDS). Pas les autres comptes.'],
-    ['Periode', 'Seulement les articles publies a partir de juin 2026 (DATE_MIN).'],
+    ['Periode', 'Seulement les articles publies en 2026 (DATE_MIN).'],
     ['Mise a jour', 'Automatique chaque vendredi 8h (presse via Google News; social via API).']
   ]);
   s.setColumnWidth(1, 230); s.setColumnWidth(2, 640);
@@ -304,17 +305,22 @@ function installerDeclencheurHebdo() {
 }
 
 // ============================================================================
-//  ARTICLES DE BASE — juin 2026 (fournis par le doc Groupe OG + repere le 2026-06-18)
-//  [dateRep, marque, titre, media, url, datePub, type, portee]
+//  ARTICLES DE BASE — 2026 (doc Groupe OG + recherche, repere le 2026-06-18)
+//  [dateRep, titre, media, url, datePub, type, portee]
 // ============================================================================
 
 var PRESS_SEED = [
- ['2026-06-18','Make Your Move Showdown','C\'est sur que les habiletes sont la - Zach Fucale a affronte Alexander Zharovsky dans la KHL','Journal de Quebec','https://www.journaldequebec.com/2026/06/16/cest-sur-que-les-habiletes-sont-la-zach-fucale-a-affronte-alexander-zharovsky-dans-la-khl-lan-dernier','2026-06-16','Article web','Tres elevee'],
- ['2026-06-18','Make Your Move Showdown','C\'est sur que les habiletes sont la - Zach Fucale a affronte Alexander Zharovsky dans la KHL','TVA Sports','https://www.tvasports.ca/article/c-est-sur-que-les-habiletes-sont-la-zach-fucale-a-affronte-alexander-zharovsky-dans-la-khl-l-an-dernier-140124441','2026-06-16','Article web','Tres elevee'],
- ['2026-06-18','Make Your Move Showdown','C\'est sur que les habiletes sont la - Zach Fucale a affronte Alexander Zharovsky dans la KHL','Journal de Montreal','https://www.journaldemontreal.com/2026/06/16/cest-sur-que-les-habiletes-sont-la-zach-fucale-a-affronte-alexander-zharovsky-dans-la-khl-lan-dernier','2026-06-16','Article web','Tres elevee'],
- ['2026-06-18','Make Your Move Showdown','Fucale croit au potentiel de Zharovsky (video)','RDS','https://www.rds.ca/hockey/canadiens/videos/2026/06/16/fucale-croit-au-potentiel-de-zharovsky/','2026-06-16','Video','Tres elevee'],
- ['2026-06-18','Make Your Move Showdown','C\'est sur que les habiletes sont la - Zach Fucale a affronte Alexander Zharovsky','QUB Radio','https://www.qub.ca/article/c-est-sur-que-les-habiletes-sont-la-zach-fucale-a-affronte-alexander-zharovsky-dans-la-khl-l-an-dernier-140124441','2026-06-16','Article web','Elevee'],
- ['2026-06-18','Make Your Move Showdown','Canadiens Prospect To Appear At The Make Your Move Showdown','The Hockey News','https://thehockeynews.com/nhl/montreal-canadiens/latest-news/canadiens-prospect-to-appear-at-the-make-your-move-showdown','2026-06','Article web','Elevee'],
- ['2026-06-18','Make Your Move Showdown','Zharovsky / Fucale - Make Your Move','Marqueur.com','https://www.marqueur.com/news/index.php?no=592464','2026-06','Article web','Moyenne'],
- ['2026-06-18','Make Your Move Showdown','De quoi a l\'air Zharovsky en vrai (balado)','BPM Sports','https://bpmsports.ca/podcast/de-quoi-a-lair-zharovsky-en-vrai/','2026-06','Balado','Moyenne']
+ ['2026-06-18','C\'est sur que les habiletes sont la - Zach Fucale a affronte Alexander Zharovsky dans la KHL','Journal de Quebec','https://www.journaldequebec.com/2026/06/16/cest-sur-que-les-habiletes-sont-la-zach-fucale-a-affronte-alexander-zharovsky-dans-la-khl-lan-dernier','2026-06-16','Article web','Tres elevee'],
+ ['2026-06-18','C\'est sur que les habiletes sont la - Zach Fucale a affronte Alexander Zharovsky dans la KHL','TVA Sports','https://www.tvasports.ca/article/c-est-sur-que-les-habiletes-sont-la-zach-fucale-a-affronte-alexander-zharovsky-dans-la-khl-l-an-dernier-140124441','2026-06-16','Article web','Tres elevee'],
+ ['2026-06-18','C\'est sur que les habiletes sont la - Zach Fucale a affronte Alexander Zharovsky dans la KHL','Journal de Montreal','https://www.journaldemontreal.com/2026/06/16/cest-sur-que-les-habiletes-sont-la-zach-fucale-a-affronte-alexander-zharovsky-dans-la-khl-lan-dernier','2026-06-16','Article web','Tres elevee'],
+ ['2026-06-18','Fucale croit au potentiel de Zharovsky (video)','RDS','https://www.rds.ca/hockey/canadiens/videos/2026/06/16/fucale-croit-au-potentiel-de-zharovsky/','2026-06-16','Video','Tres elevee'],
+ ['2026-06-18','C\'est sur que les habiletes sont la - Zach Fucale a affronte Alexander Zharovsky','QUB Radio','https://www.qub.ca/article/c-est-sur-que-les-habiletes-sont-la-zach-fucale-a-affronte-alexander-zharovsky-dans-la-khl-l-an-dernier-140124441','2026-06-16','Article web','Elevee'],
+ ['2026-06-18','Canadiens Prospect To Appear At The Make Your Move Showdown','The Hockey News','https://thehockeynews.com/nhl/montreal-canadiens/latest-news/canadiens-prospect-to-appear-at-the-make-your-move-showdown','2026-06','Article web','Elevee'],
+ ['2026-06-18','Canadiens Prospect To Appear At The Make Your Move Showdown (video)','The Hockey News','https://thehockeynews.com/nhl/montreal-canadiens/video/canadiens-prospect-to-appear-at-the-make-your-move-showdown','2026-06','Video','Elevee'],
+ ['2026-06-18','Canadiens Prospect To Appear At The Make Your Move Showdown','Yahoo Sports','https://sports.yahoo.com/articles/canadiens-prospect-appear-move-showdown-110029296.html','2026-06','Article web','Tres elevee'],
+ ['2026-06-18','Zharovsky / Fucale - Make Your Move','Marqueur.com','https://www.marqueur.com/news/index.php?no=592464','2026-06','Article web','Moyenne'],
+ ['2026-06-18','De quoi a l\'air Zharovsky en vrai (balado)','BPM Sports','https://bpmsports.ca/podcast/de-quoi-a-lair-zharovsky-en-vrai/','2026-06','Balado','Moyenne'],
+ ['2026-06-18','Excellent acquisition for Kent Hughes and the Canadiens: The skill is there','Montreal Hockey Fanatics','https://www.montrealhockeyfanatics.com/nhl-team/montreal-canadiens/excellent-acquisition-for-kent-hughes-and-the-montreal-canadiens-the-skill-is-there','2026-06','Article web','Moyenne'],
+ ['2026-06-18','Successful acquisition for the Canadiens: He reminds me of Evgeny Kuznetsov','Montreal Hockey Fanatics','https://www.montrealhockeyfanatics.com/nhl-team/montreal-canadiens/successful-acquisition-for-kent-hughes-and-the-canadiens-he-reminds-me-of-evgeny-kuznetsov','2026-06','Article web','Moyenne'],
+ ['2026-06-18','Zharovsky To Train With Demidov In Montreal','The Sick Podcast','https://thesickpodcast.com/zharovsky-to-train-with-demidov-in-montreal/','2026-06','Balado','Moyenne']
 ];
