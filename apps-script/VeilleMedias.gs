@@ -343,5 +343,10 @@ var PRESS_SEED = [
  ['2026-06-18','Living Sisu','Keeping Game Ready: The Living Sisu Hockey League','LiveBarn','https://www.livebarn.com/blog/lshl','','Blogue','Faible'],
  ['2026-06-18','LSHL','Un nouveau souffle entre deux saisons','Hockey Canada','https://www.hockeycanada.ca/fr-ca/news/lshl-2022-wwc-feature','2022','Article web','Elevee'],
  ['2026-06-18','Zachary Fucale / Living Sisu','Zachary Fucale: Breaking News, Rumors & Highlights','Yardbarker','https://www.yardbarker.com/nhl/players/zachary_fucale/261445','','Agregateur','Moyenne'],
- ['2026-06-18','Zachary Fucale','Zachary Fucale: Goalie of the Future or Trade Bait?','The Hockey Writers','https://thehockeywriters.com/zachary-fucale-goalie-of-the-future-or-trade-bait/','','Article web','Moyenne']
+ ['2026-06-18','Zachary Fucale','Zachary Fucale: Goalie of the Future or Trade Bait?','The Hockey Writers','https://thehockeywriters.com/zachary-fucale-goalie-of-the-future-or-trade-bait/','','Article web','Moyenne'],
+ ['2026-06-18','Make Your Move','Ivan Demidov a epate la galerie au tournoi Make Your Move','Dans les coulisses','https://www.danslescoulisses.com/ivan-demidov-a-epate-la-galerie-au-tournoi-make-your-move/','2025-07','Article web','Moyenne'],
+ ['2026-06-18','Make Your Move','Ivan Demidov sera en action a Boisbriand ce samedi','Sports Addik','https://sportsaddik.com/canadiens/ivan-demidov-sera-en-action-a-boisbriand-ce-samedi/','2025-07','Article web','Moyenne'],
+ ['2026-06-18','LSHL','Four Canadiens Players To Play In The LSHL','Yahoo Sports','https://sports.yahoo.com/article/four-canadiens-players-play-lshl-110002750.html','2025','Article web','Tres elevee'],
+ ['2026-06-18','Living Sisu Hockey League','PWHL Stars Set To Star In Montreal\'s 3-on-3 Living Sisu Hockey League','The Hockey News','https://thehockeynews.com/womens/other-news/pwhl-stars-set-to-star-in-montreal-s-3-on-3-living-sisu-hockey-league','2025','Article web','Elevee'],
+ ['2026-06-18','LSHL','Energized in the offseason (LSHL)','Hockey Canada','https://www.hockeycanada.ca/en-ca/news/lshl-2022-wwc-feature','2022','Article web','Elevee']
 ];
