@@ -1,0 +1,13 @@
+# Never commit personal data or the (large) transcript corpus.
+data/transcripts/
+data/manifests/
+data/index.pkl
+data/whoop/
+data/whoop_summary.json
+coach_prompt.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
