@@ -49,6 +49,26 @@ Puis lancer **`majReseauxSociaux`**. Tant qu'aucun jeton n'est présent, l'ongle
   presse (estimée)* = niveau qualitatif (Très élevée → Faible) selon le média.
 - **Réseaux sociaux MYM** : impressions **exactes** une fois les comptes connectés.
 
+## Intégration Todoist (MCP pour Claude Code)
+
+Ce dépôt fournit un serveur **MCP Todoist** préconfiguré dans `.mcp.json`. À
+l'ouverture d'une session Claude Code dans ce dépôt, le serveur `todoist` est
+proposé automatiquement.
+
+**Authentification** : dans une session Claude Code, lancer `/mcp`, choisir
+`todoist`, puis suivre le flux OAuth dans le navigateur pour connecter votre
+compte Todoist. (Le serveur officiel est `https://ai.todoist.net/mcp`.)
+
+**Pour l'avoir dans *tous* vos projets** (pas seulement ce dépôt), ajoutez-le
+une fois au scope utilisateur :
+
+```bash
+claude mcp add --transport http --scope user todoist https://ai.todoist.net/mcp
+```
+
+Vérifier : `claude mcp list`. Les serveurs MCP ne sont chargés qu'au démarrage
+d'une session — ouvrez une nouvelle session après l'ajout.
+
 ## Mots-clés presse surveillés
 
 `Make Your Move Showdown`, `Make Your Move` (hockey), `Living Sisu`, `LSHL`,
