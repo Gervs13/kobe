@@ -28,6 +28,7 @@ MANIFEST_DIR = DATA_DIR / "manifests"           # data/manifests/<slug>.jsonl
 INDEX_PATH = DATA_DIR / "index.pkl"             # BM25 search index
 WHOOP_DIR = DATA_DIR / "whoop"                  # drop your WHOOP CSV exports here
 WHOOP_SUMMARY_PATH = DATA_DIR / "whoop_summary.json"
+WHOOP_TOKENS_PATH = DATA_DIR / "whoop_tokens.json"   # OAuth tokens (git-ignored)
 COACH_PROMPT_PATH = BASE_DIR / "coach_prompt.md"
 
 # --- Politeness / anti-block knobs -----------------------------------------

@@ -22,6 +22,7 @@ Claude/ChatGPT.
 | `build_index.py` | Chunks transcripts and builds a BM25 search index. |
 | `search.py` | Search the index from the CLI. |
 | `whoop.py` | Parse your WHOOP CSV export → a summary + flags. |
+| `whoop_api.py` | Pull WHOOP data **live via the WHOOP API** (OAuth) → same summary + flags. |
 | `make_coach_prompt.py` | Combine WHOOP summary + relevant transcript excerpts → `coach_prompt.md`. |
 | `chat.py` | Local chat app — talk to a RAG coach (Claude API) with the transcripts + your WHOOP data. |
 | `coach_system_prompt.md` | The coach's persona / rules (edit to taste). |
@@ -83,6 +84,33 @@ python whoop.py
 This prints your recovery/HRV/sleep/strain summary, flags red-flags, and writes
 `data/whoop_summary.json`. The parser matches columns by keyword, so it survives
 WHOOP renaming things.
+
+### Option B — pull live from the WHOOP API (OAuth)
+
+Instead of exporting CSVs, connect directly to your WHOOP account. Run locally
+(the WHOOP API blocks datacenter IPs, and OAuth needs your browser).
+
+**One-time setup:**
+1. Create an app at <https://developer-dashboard.whoop.com/>.
+2. Add this Redirect URL to the app, **exactly**: `http://localhost:8080/callback`
+3. Enable scopes: `read:recovery read:cycles read:sleep read:workout read:profile read:body_measurement offline`
+4. Export the credentials:
+   ```bash
+   export WHOOP_CLIENT_ID=...
+   export WHOOP_CLIENT_SECRET=...
+   ```
+
+**Then:**
+```bash
+python whoop_api.py            # last 90 days → data/whoop_summary.json
+python whoop_api.py --days 30
+python whoop_api.py --reauth   # force a fresh browser login
+```
+
+It opens your browser to log in once, stores a (git-ignored) refresh token in
+`data/whoop_tokens.json`, and writes the **same** `whoop_summary.json` as the CSV
+path — so `make_coach_prompt.py` and `chat.py` work the same way. Re-run it any
+time to refresh (it reuses the saved token, no re-login).
 
 ## Step 4 — Generate your coaching prompt
 

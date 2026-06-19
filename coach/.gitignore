@@ -4,6 +4,7 @@ data/manifests/
 data/index.pkl
 data/whoop/
 data/whoop_summary.json
+data/whoop_tokens.json
 coach_prompt.md
 
 # Python
